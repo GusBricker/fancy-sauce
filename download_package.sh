@@ -54,13 +54,13 @@ Tree "dists/${CONFIG_RELEASE_NAME}" {
 EOF
 
 cat >"${repo_release_config_file_path}" <<EOF
-APT::FTPArchive::Release::Origin "Local Repository";
-APT::FTPArchive::Release::Label "Your Local Repository";
-APT::FTPArchive::Release::Suite "stable";
+APT::FTPArchive::Release::Origin "${CONFIG_REPOSITORY_ORIGIN}";
+APT::FTPArchive::Release::Label "${CONFIG_REPOSITORY_LABEL}";
+APT::FTPArchive::Release::Suite "${CONFIG_REPOSITORY_SUITE}";
 APT::FTPArchive::Release::Codename "${CONFIG_RELEASE_NAME}";
 APT::FTPArchive::Release::Architectures "${CONFIG_ARCHITECTURE} source";
 APT::FTPArchive::Release::Components "${CONFIG_PACKAGES_SECTION_NAME}";
-APT::FTPArchive::Release::Description "Something here";
+APT::FTPArchive::Release::Description "${CONFIG_REPOSITORY_DESCRIPTION}";
 EOF
 
 DoEcho "Setting up repo"
