@@ -69,13 +69,9 @@ apt-ftparchive generate "${repo_config_file_path}"
 DoEcho "Setting up repo release"
 apt-ftparchive -c "${repo_release_config_file_path}" release "${base_release_dir}" > "${base_release_dir}/Release" 
 
-DoEcho "Signing repo"
-gpg --yes -abs -u "${CONFIG_GPG_KEY_NAME}" -o "${base_release_dir}/Release.gpg" "${base_release_dir}/Release"
-
-#DoEcho "Building Packages.gz file"
-#apt-ftparchive packages . | gzip -9c > Packages.gz
-#dpkg-scanpackages . /dev/null | gzip -9c > Packages.gz
-
-#DoEcho "Building Release file"
-#apt-ftparchive release . > Release
+if [[ "x${CONFIG_SIGN_REPOSITORY}" == "xyes" ]]
+then
+    DoEcho "Signing repo"
+    gpg --yes -abs -u "${CONFIG_GPG_KEY_NAME}" -o "${base_release_dir}/Release.gpg" "${base_release_dir}/Release"
+fi
 
