@@ -1,0 +1,13 @@
+#!/bin/bash
+
+#
+## All fields required
+
+CONFIG_RELEASE_NAME="wheezy"
+CONFIG_PACKAGES_SECTION_NAME="main"
+CONFIG_ARCHITECTURE="armhf"
+CONFIG_INPUT_MANIFEST_PATH="${DIR}/output/manifest.tx"
+CONFIG_OUTPUT_MANIFEST_PATH="${DIR}/output/manifest.tx"
+CONFIG_DOWNLOAD_PACKAGES_PATH="${DIR}/download"
+CONFIG_GPG_KEYS_PATH="${DIR}/keys"
+CONFIG_GPG_KEY_NAME="dpkg-signing"
