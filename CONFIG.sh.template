@@ -2,6 +2,12 @@
 
 #
 ## All fields required
+## Script has access to variables/functions calling scripts.
+## Useful variables:
+##  ${DIR}      - working directory of user
+## Useful functions:
+##  RelToAbs()  - converts relative to absolute path
+
 
 CONFIG_REPOSITORY_ORIGIN="Local"
 CONFIG_REPOSITORY_LABEL="Special repository"
