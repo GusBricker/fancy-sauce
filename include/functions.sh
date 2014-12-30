@@ -5,6 +5,29 @@ function DoEcho()
     echo "=== $1"
 }
 
+function PackageName()
+{
+    local package=$1
+    local version=$2
+
+    apt-cache show ${package}=${version} | grep "Filename:" | sed 's/.*\///'
+}
+
+function PackageSHA256()
+{
+    local package=$1
+    local version=$2
+
+    apt-cache show ${package}=${version} | grep "SHA256:" | cut -f 2 -d " "
+}
+
+function CalculateSHA256()
+{
+    local filename=$1
+
+    sha256sum "${filename}" | cut -f 1 -d " "
+}
+
 function DownloadPackage()
 {
     local package=$1

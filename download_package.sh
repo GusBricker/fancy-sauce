@@ -24,8 +24,24 @@ for line in "${LINES[@]}"; do
     ver="${FIELDS[2]}"
 
     pushd "${binary_release_dir}"
-    DoEcho "Downloading ${pkg}:${ver}"
-    DownloadPackage "${pkg}" "${ver}" "$(pwd)"
+    package_name=$(PackageName "${pkg}" "${ver}")
+    package_sha=$(PackageSHA256 "${pkg}" "${ver}")
+    DoEcho "Checking for existing ${pkg}:${ver}"
+    if [ -f "${package_name}" ]
+    then
+        calculated_sha=$(CalculateSHA256 "${package_name}")
+        if [[ "x${calculated_sha}" != "x${package_sha}" ]]
+        then
+            DoEcho "Package SHA256 mismatch: ${calculated_sha} vs ${package_sha}, getting"
+            DoEcho "Downloading ${pkg}:${ver}"
+            DownloadPackage "${pkg}" "${ver}" "$(pwd)"
+        else
+            DoEcho "Package SHA256 match: ${calculated_sha}, skipping"
+        fi
+    else
+        DoEcho "Downloading ${pkg}:${ver}"
+        DownloadPackage "${pkg}" "${ver}" "$(pwd)"
+    fi
     popd
 
     if [[ "x${CONFIG_DOWNLOAD_PACKAGE_SOURCE}" == "xyes" ]]
