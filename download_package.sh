@@ -28,10 +28,13 @@ for line in "${LINES[@]}"; do
     DownloadPackage "${pkg}" "${ver}" "$(pwd)"
     popd
 
-    pushd "${source_release_dir}"
-    DoEcho "Downloading source ${pkg}:${ver}"
-    DownloadPackageSource "${pkg}" "${ver}" "$(pwd)"
-    popd
+    if [[ "x${CONFIG_DOWNLOAD_PACKAGE_SOURCE}" == "xyes" ]]
+    then
+        pushd "${source_release_dir}"
+        DoEcho "Downloading source ${pkg}:${ver}"
+        DownloadPackageSource "${pkg}" "${ver}" "$(pwd)"
+        popd
+    fi
 done
 
 repo_config_file_path="${base_release_dir}/setup"
