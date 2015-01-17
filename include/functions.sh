@@ -37,6 +37,22 @@ function DownloadPackage()
     apt-get -d -o=dir::cache="${location}" -o Debug::NoLocking=1 download ${package}=${version}
 }
 
+function CachePackage()
+{
+    local package=$1
+    local version=$2
+
+    if [ "x${version}" == "x" ]
+    then
+        arg="${package}"
+    else
+        arg="${package}=${version}"
+    fi
+
+    apt-get -d install ${arg}
+}
+
+
 function DownloadPackageSource()
 {
     local package=$1
