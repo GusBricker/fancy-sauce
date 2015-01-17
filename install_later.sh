@@ -45,7 +45,7 @@ if [ ! -f "${install_later_path}" ]
 then
     DoEcho "Initializing install later script"
     cat << '__EOF__' > ${install_later_path}
-#/bin/bash
+#!/bin/bash
 
 state_path=/var/lib/install-later
 has_ran_path=${state_path}/has_ran
