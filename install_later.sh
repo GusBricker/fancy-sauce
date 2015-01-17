@@ -48,6 +48,7 @@ then
 #!/bin/bash
 
 state_path=/var/lib/install-later
+log_file=/var/log/install-later.log
 has_ran_path=${state_path}/has_ran
 
 mkdir -p ${state_path}
@@ -57,6 +58,9 @@ then
     echo "Install later has ran already"
     exit 0
 fi
+
+exec >  >(tee -a ${log_file})
+exec 2> >(tee -a ${log_file} >&2)
 
 echo "Install later script starting..."
 
