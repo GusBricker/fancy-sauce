@@ -40,16 +40,9 @@ function DownloadPackage()
 function CachePackage()
 {
     local package=$1
-    local version=$2
+    local download_directory=$2
 
-    if [ "x${version}" == "x" ]
-    then
-        arg="${package}"
-    else
-        arg="${package}=${version}"
-    fi
-
-    apt-get -d install ${arg}
+    apt-get --print-uris --yes install "${package}" | grep ^\' | cut -d\' -f2 | xargs wget -P "${download_directory}"
 }
 
 

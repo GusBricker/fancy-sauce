@@ -7,7 +7,7 @@ source ${CONFIG_PATH}
 function Usage()
 {
     cat <<-__EOF__
-Usage: install_later <package> <install later script>
+Usage: install_later <package> <install later script> <cache directory>
 
 Sets up a package to be installed later in a given root file system.
 This consists of downloading the package, and building up a "install later" script.
@@ -16,8 +16,9 @@ Both arguments are neccessary.
 __EOF__
 }
 
-package=$1
-install_later_path=$2
+package="$1"
+install_later_path="$2"
+cache_path="$3"
 
 if [ "x${package}" == "x" ]
 then
@@ -33,13 +34,23 @@ then
     exit 1
 fi
 
+if [ "x${cache_path}" == "x" ]
+then
+    DoEcho "Missing cache path, stopping"
+    Usage
+    exit 1
+fi
+
+mkdir -p "${cache_path}"
 DoEcho "Caching ${package}"
-CachePackage "${package}"
+CachePackage "${package}" "${cache_path}"
 if [ "$?" -ne 0 ]
 then
     DoEcho "Package install failed, does it exist?"
     exit 1
 fi
+
+apt-get update -y --force-yes
 
 if [ ! -f "${install_later_path}" ]
 then
@@ -62,21 +73,30 @@ fi
 exec >  >(tee -a ${log_file})
 exec 2> >(tee -a ${log_file} >&2)
 
+set -e
+
 echo "Install later script starting..."
 
 __EOF__
+
+    cat << __EOF__ >> ${install_later_path}
+cache_path=${cache_path}
+
+find \${cache_path}/*.deb  -printf "Installing %f\n"
+dpkg -i \${cache_path}/*.deb
+
+__EOF__
+
+    cat << '__EOF__' >> ${install_later_path}
+if [ $? -ne 0 ]
+then
+    echo "Installation failed!"
 else
-    DoEcho "Adding to install later script"
-    sed -i '$ d' "${install_later_path}"
+    echo "Installation success!"
+    rm -r ${cache_path}
+    touch ${has_ran_path}
+fi
+__EOF__
 fi
 
-cat << __EOF__ >> ${install_later_path}
-echo "Installing ${package}"
-apt-get install ${package}
-
-__EOF__
-
-cat << '__EOF__' >> ${install_later_path}
-touch ${has_ran_path}
-__EOF__
 
