@@ -2,7 +2,12 @@
 
 function DoEcho()
 {
-    echo "=== $1"
+    echo "=== $@"
+}
+
+function ContinueEcho()
+{
+    echo "      $@"
 }
 
 function PackageName()
@@ -10,7 +15,30 @@ function PackageName()
     local package=$1
     local version=$2
 
-    apt-cache show ${package}=${version} | grep "Filename:" | sed 's/.*\///'
+    local line=$(apt-get download -o Debug::NoLocking=1 --print-uris ${package}=${version} | cut -d' ' -f2)
+    local result=$?
+
+    echo "${line}"
+    return ${result}
+}
+
+function PackageSourceName()
+{
+    local package=$1
+    local version=$2
+    local lines=($(apt-get source -o Debug::NoLocking=1 --print-uris ${package}=${version} | grep "${package}" | cut -d' ' -f2))
+    local line=""
+
+    for line in "${lines[@]}"
+    do
+        if [[ "${line}" == *".dsc" ]]
+        then
+            echo "${line}"
+            return 0
+        fi
+    done
+
+    return 1
 }
 
 function PackageSHA256()
@@ -96,3 +124,12 @@ function ParseCommonArgs()
     source ${1}
 }
 
+function pushd()
+{
+    command pushd "$@" > /dev/null
+}
+
+function popd()
+{
+    command popd "$@" > /dev/null
+}

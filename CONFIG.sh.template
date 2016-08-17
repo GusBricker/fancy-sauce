@@ -4,22 +4,36 @@
 ## All fields required
 ## Script has access to variables/functions calling scripts.
 ## Useful variables:
-##  ${DIR}      - working directory of user
+##  ${DIR}      - directory containing fancy-sauce scripts
 ## Useful functions:
 ##  RelToAbs()  - converts relative to absolute path
 
+# See CONFIG FILES options at: https://mirrorer.alioth.debian.org/reprepro.1.html
+CONFIG_DISTRIBUTIONS=$(cat <<- EOF
+Origin: apt.example.com
+Label: Awesome Apt repository
+Codename: awesome01
+Architectures: amd64 source
+Components: main contrib non-free
+Description: Your repositories description
+SignWith: Dr Key Less
+Pull: jessie
+EOF
+)
+CONFIG_MANIFEST_PATH="${HOME}/manifest.txt"
+CONFIG_DOWNLOAD_PACKAGES_PATH="${HOME}/my_repo_download"
+CONFIG_DOWNLOAD_PACKAGE_SOURCE="yes" # yes or no
+CONFIG_REPOSITORY_PATH="${HOME}/my_repo"
+CONFIG_DISTRIBUTION_NAME="awesome01"
 
-CONFIG_REPOSITORY_ORIGIN="Local"
-CONFIG_REPOSITORY_LABEL="Special repository"
-CONFIG_REPOSITORY_SUITE="stable"
-CONFIG_REPOSITORY_DESCRIPTION="My local repository"
-CONFIG_RELEASE_NAME="wheezy"
-CONFIG_PACKAGES_SECTION_NAME="main"
-CONFIG_ARCHITECTURE="armhf"
-CONFIG_INPUT_MANIFEST_PATH="${DIR}/output/manifest.tx"
-CONFIG_OUTPUT_MANIFEST_PATH="${DIR}/output/manifest.tx"
-CONFIG_DOWNLOAD_PACKAGES_PATH="${DIR}/download"
-CONFIG_DOWNLOAD_PACKAGE_SOURCE="no" # yes or no
-CONFIG_SIGN_REPOSITORY="yes" # yes or no
-CONFIG_GPG_KEYS_PATH="${DIR}/keys"
-CONFIG_GPG_KEY_NAME="dpkg-signing"
+CONFIG_GPG_KEY_PATH="${CONFIG_REPOSITORY_PATH}/keys"
+# See batch options at: https://www.gnupg.org/documentation/manpage.html
+CONFIG_GPG_KEY=$(cat <<- EOF
+Key-Type: 1
+Key-Length: 2048
+Subkey-Type: 1
+Subkey-Length: 2048
+Name-Real: Dr Key Less
+Expire-Date: 0
+EOF
+)

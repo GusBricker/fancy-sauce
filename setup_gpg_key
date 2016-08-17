@@ -1,0 +1,31 @@
+#!/bin/bash
+
+DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+source ${DIR}/include/common.sh
+
+ParseCommonArgs "${@}"
+
+DoEcho "Installing rng-tools"
+InstallPackage "rng-tools"
+
+DoEcho "Seeding rng"
+/usr/sbin/rngd -r /dev/urandom
+
+key_name=$(echo "${CONFIG_GPG_KEY}"  | grep "Name-Real: " | cut -d' ' -f2-)
+if [[ "x${key_name}" == "x" ]]
+then
+    DoEcho "Couldn't determine key name, stopping"
+    exit 1
+fi
+
+keys_path="${CONFIG_GPG_KEY_PATH}"
+DoEcho "Setting up gpg-keys in ${keys_path}"
+mkdir -p "${keys_path}"
+echo "${CONFIG_GPG_KEY}" > "${keys_path}/setup"
+gpg --batch --gen-key "${keys_path}/setup" || exit 1
+
+ContinueEcho "Exporting private key: ${keys_path}/secret.gpg"
+gpg -a --export-secret-key ${CONFIG_GPG_KEY_NAME} > "${keys_path}/secret.gpg"
+
+ContinueEcho "Exporting public key: ${keys_path}/public.gpg"
+gpg -a --export ${key_name} > "${keys_path}/public.gpg"
