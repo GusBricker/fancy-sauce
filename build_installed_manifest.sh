@@ -2,7 +2,8 @@
 
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 source ${DIR}/include/common.sh
-source ${CONFIG_PATH}
+
+ParseCommonArgs "${@}"
 
 DoEcho "Listing installed packages"
 installed_packages=$(dpkg -l | grep ^ii)

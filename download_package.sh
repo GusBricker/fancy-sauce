@@ -2,8 +2,8 @@
 
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 source ${DIR}/include/common.sh
-source ${CONFIG_PATH}
 
+ParseCommonArgs "${@}"
 DoEcho "Installing dpkg-dev"
 InstallPackage "dpkg-dev"
 

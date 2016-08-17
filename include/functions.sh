@@ -78,3 +78,21 @@ function RelToAbsPath()
 
     echo "${abs}"
 }
+
+function ParseCommonArgs()
+{
+    if [[ "x${1}" == "x" ]]
+    then
+        DoEcho "Missing 1st (and only!) argument: path to config file"
+        exit 1
+    fi
+
+    if [ ! -f "${1}" ]
+    then
+        DoEcho "Config file path isn't correct"
+        exit 1
+    fi
+
+    source ${1}
+}
+
