@@ -6,7 +6,7 @@ source ${DIR}/include/common.sh
 ParseCommonArgs "${@}"
 
 DoEcho "Installing dependancies"
-InstallPackage "dpkg-dev reprepro"
+InstallPackage dpkg-dev reprepro
 
 DoEcho "Setting up things!"
 conf_dir="${CONFIG_REPOSITORY_PATH}/conf"

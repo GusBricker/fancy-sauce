@@ -86,16 +86,7 @@ function DownloadPackageSource()
 
 function InstallPackage()
 {
-    local package=$1
-    local version=$2
-
-    if [[ "x${version}" == "x" ]]
-    then
-        apt-get install -y "${package}"
-    else
-        apt-get install -y "${package}"="${version}"
-    fi
-
+    apt-get install -y "${@}"
 }
 
 function RelToAbsPath()
