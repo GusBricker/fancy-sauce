@@ -8,7 +8,7 @@ ParseCommonArgs "${@}"
 DoEcho "Installing dependancies"
 InstallPackage "dpkg-dev reprepro"
 
-DoEcho "Deleting old package repository"
+DoEcho "Setting up things!"
 conf_dir="${CONFIG_REPOSITORY_PATH}/conf"
 mkdir -p "${conf_dir}"
 echo "${CONFIG_DISTRIBUTIONS}" > "${conf_dir}/distributions"
