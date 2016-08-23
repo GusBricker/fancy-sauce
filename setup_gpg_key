@@ -24,8 +24,8 @@ mkdir -p "${keys_path}"
 echo "${CONFIG_GPG_KEY}" > "${keys_path}/setup"
 gpg --batch --gen-key "${keys_path}/setup" || exit 1
 
-ContinueEcho "Exporting private key: ${keys_path}/secret.gpg"
-gpg -a --export-secret-key ${CONFIG_GPG_KEY_NAME} > "${keys_path}/secret.gpg"
+ContinueEcho "Exporting private key: ${keys_path}/secret.asc"
+gpg -a --export-secret-key ${CONFIG_GPG_KEY_NAME} > "${keys_path}/secret.asc"
 
-ContinueEcho "Exporting public key: ${keys_path}/public.gpg"
-gpg -a --export ${key_name} > "${keys_path}/public.gpg"
+ContinueEcho "Exporting public key: ${keys_path}/public.asc"
+gpg -a --export ${key_name} > "${keys_path}/public.asc"
