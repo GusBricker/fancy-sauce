@@ -37,9 +37,9 @@ for line in "${LINES[@]}"; do
         then
             ContinueEcho "Filename: ${package_name}"
 
+            pushd "${download_dir}"
             if [ ! -f "${package_name}" ]
             then
-                pushd "${download_dir}"
                 ContinueEcho "Downloading..."
                 if DownloadPackage "${pkg}" "${ver}" "$(pwd)"
                 then
@@ -49,10 +49,10 @@ for line in "${LINES[@]}"; do
                 else
                     errors+=("${pretty_name}: Download fail")
                 fi
-                popd
             else
                 ContinueEcho "Have already, skipping..."
             fi
+            popd
         else
             errors+=("${pretty_name}: Couldn't determine filename")
             ContinueEcho "Couldn't determine filename, skipping..."
@@ -76,9 +76,9 @@ for line in "${LINES[@]}"; do
             then
                 ContinueEcho "Filename: ${package_name}"
 
+                pushd "${download_dir}"
                 if [ ! -f "${package_name}" ]
                 then
-                    pushd "${download_dir}"
                     ContinueEcho "Downloading..."
                     if DownloadPackageSource "${pkg}" "${ver}" "$(pwd)"
                     then
@@ -88,10 +88,10 @@ for line in "${LINES[@]}"; do
                     else
                         errors+=("${pretty_name}: Download fail")
                     fi
-                    popd
                 else
                     ContinueEcho "Have already, skipping..."
                 fi
+                popd
             else
                 errors+=("${pretty_name}: Couldn't determine filename")
                 ContinueEcho "Couldn't determine filename, skipping..."
