@@ -37,21 +37,28 @@ for line in "${LINES[@]}"; do
         then
             ContinueEcho "Filename: ${package_name}"
 
+            have_pkg=1
             pushd "${download_dir}"
             if [ ! -f "${package_name}" ]
             then
                 ContinueEcho "Downloading..."
                 if DownloadPackage "${pkg}" "${ver}" "$(pwd)"
                 then
-                    ContinueEcho "Adding..."
-                    reprepro -b "${CONFIG_REPOSITORY_PATH}" includedeb "${CONFIG_DISTRIBUTION_NAME}" "${package_name}" || \
-                    errors+=("${pretty_name}: Couldn't add to repo")
+                    have_pkg=0
                 else
                     errors+=("${pretty_name}: Download fail")
                 fi
             else
-                ContinueEcho "Have already, skipping..."
+                have_pkg=0
             fi
+
+            if [ ${have_pkg} -eq 0 ]
+            then
+                ContinueEcho "Adding..."
+                reprepro -b "${CONFIG_REPOSITORY_PATH}" includedeb "${CONFIG_DISTRIBUTION_NAME}" "${package_name}" || \
+                errors+=("${pretty_name}: Couldn't add to repo")
+            fi
+
             popd
         else
             errors+=("${pretty_name}: Couldn't determine filename")
@@ -76,20 +83,26 @@ for line in "${LINES[@]}"; do
             then
                 ContinueEcho "Filename: ${package_name}"
 
+                have_pkg=1
                 pushd "${download_dir}"
                 if [ ! -f "${package_name}" ]
                 then
                     ContinueEcho "Downloading..."
                     if DownloadPackageSource "${pkg}" "${ver}" "$(pwd)"
                     then
-                        ContinueEcho "Adding..."
-                        reprepro -b "${CONFIG_REPOSITORY_PATH}" includedsc "${CONFIG_DISTRIBUTION_NAME}" "${package_name}" || \
-                        errors+=("${pretty_name}: Couldn't add to repo")
+                        have_pkg=0
                     else
                         errors+=("${pretty_name}: Download fail")
                     fi
                 else
-                    ContinueEcho "Have already, skipping..."
+                    have_pkg=0
+                fi
+
+                if [ ${have_pkg} -eq 0 ]
+                then
+                    ContinueEcho "Adding..."
+                    reprepro -b "${CONFIG_REPOSITORY_PATH}" includedsc "${CONFIG_DISTRIBUTION_NAME}" "${package_name}" || \
+                    errors+=("${pretty_name}: Couldn't add to repo")
                 fi
                 popd
             else
