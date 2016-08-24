@@ -12,69 +12,25 @@ DoEcho "Setting up things!"
 conf_dir="${CONFIG_REPOSITORY_PATH}/conf"
 mkdir -p "${conf_dir}"
 echo "${CONFIG_DISTRIBUTIONS}" > "${conf_dir}/distributions"
-
-DoEcho "Reading manifest from: ${CONFIG_MANIFEST_PATH}"
-IFS=$'\n' read -d '' -r -a LINES < ${CONFIG_MANIFEST_PATH}
-
-DoEcho "Making sure directories exist"
-download_dir="${CONFIG_DOWNLOAD_PACKAGES_PATH}"
-mkdir -p "${download_dir}"
 errors=()
 
-for line in "${LINES[@]}"; do
-    FIELDS=( ${line} )
-    pkg="${FIELDS[1]}"
-    ver="${FIELDS[2]}"
-    pretty_name="[DEB] ${pkg}=${ver}"
+if [[ "x${CONFIG_MANIFEST_PATH}" != "x" ]] && [ -e "${CONFIG_MANIFEST_PATH}" ]
+then
+    DoEcho "Reading manifest from: ${CONFIG_MANIFEST_PATH}"
+    IFS=$'\n' read -d '' -r -a LINES < ${CONFIG_MANIFEST_PATH}
 
-    DoEcho "${pretty_name}"
-    package_name=$(PackageName "${pkg}" "${ver}")
-    got_package_name=$?
+    DoEcho "Making sure directories exist"
+    download_dir="${CONFIG_DOWNLOAD_PACKAGES_PATH}"
+    mkdir -p "${download_dir}"
 
-    if [ ${got_package_name} -eq 0 ]
-    then
-        if [[ "x${package_name}" != "x" ]]
-        then
-            ContinueEcho "Filename: ${package_name}"
-
-            have_pkg=1
-            pushd "${download_dir}"
-            if [ ! -f "${package_name}" ]
-            then
-                ContinueEcho "Downloading..."
-                if DownloadPackage "${pkg}" "${ver}" "$(pwd)"
-                then
-                    have_pkg=0
-                else
-                    errors+=("${pretty_name}: Download fail")
-                fi
-            else
-                have_pkg=0
-            fi
-
-            if [ ${have_pkg} -eq 0 ]
-            then
-                ContinueEcho "Adding..."
-                reprepro -b "${CONFIG_REPOSITORY_PATH}" includedeb "${CONFIG_DISTRIBUTION_NAME}" "${package_name}" || \
-                errors+=("${pretty_name}: Couldn't add to repo")
-            fi
-
-            popd
-        else
-            errors+=("${pretty_name}: Couldn't determine filename")
-            ContinueEcho "Couldn't determine filename, skipping..."
-        fi
-    else
-        ContinueEcho "Got error, skipping..."
-    fi
-
-
-    if [[ "x${CONFIG_DOWNLOAD_PACKAGE_SOURCE}" == "xyes" ]]
-    then
-        pretty_name="[DSC] ${pkg}=${ver}"
+    for line in "${LINES[@]}"; do
+        FIELDS=( ${line} )
+        pkg="${FIELDS[1]}"
+        ver="${FIELDS[2]}"
+        pretty_name="[DEB] ${pkg}=${ver}"
 
         DoEcho "${pretty_name}"
-        package_name=$(PackageSourceName "${pkg}" "${ver}")
+        package_name=$(PackageName "${pkg}" "${ver}")
         got_package_name=$?
 
         if [ ${got_package_name} -eq 0 ]
@@ -88,7 +44,7 @@ for line in "${LINES[@]}"; do
                 if [ ! -f "${package_name}" ]
                 then
                     ContinueEcho "Downloading..."
-                    if DownloadPackageSource "${pkg}" "${ver}" "$(pwd)"
+                    if DownloadPackage "${pkg}" "${ver}" "$(pwd)"
                     then
                         have_pkg=0
                     else
@@ -101,9 +57,10 @@ for line in "${LINES[@]}"; do
                 if [ ${have_pkg} -eq 0 ]
                 then
                     ContinueEcho "Adding..."
-                    reprepro -b "${CONFIG_REPOSITORY_PATH}" includedsc "${CONFIG_DISTRIBUTION_NAME}" "${package_name}" || \
+                    reprepro -b "${CONFIG_REPOSITORY_PATH}" includedeb "${CONFIG_DISTRIBUTION_NAME}" "${package_name}" || \
                     errors+=("${pretty_name}: Couldn't add to repo")
                 fi
+
                 popd
             else
                 errors+=("${pretty_name}: Couldn't determine filename")
@@ -112,8 +69,72 @@ for line in "${LINES[@]}"; do
         else
             ContinueEcho "Got error, skipping..."
         fi
-    fi
-done
+
+
+        if [[ "x${CONFIG_DOWNLOAD_PACKAGE_SOURCE}" == "xyes" ]]
+        then
+            pretty_name="[DSC] ${pkg}=${ver}"
+
+            DoEcho "${pretty_name}"
+            package_name=$(PackageSourceName "${pkg}" "${ver}")
+            got_package_name=$?
+
+            if [ ${got_package_name} -eq 0 ]
+            then
+                if [[ "x${package_name}" != "x" ]]
+                then
+                    ContinueEcho "Filename: ${package_name}"
+
+                    have_pkg=1
+                    pushd "${download_dir}"
+                    if [ ! -f "${package_name}" ]
+                    then
+                        ContinueEcho "Downloading..."
+                        if DownloadPackageSource "${pkg}" "${ver}" "$(pwd)"
+                        then
+                            have_pkg=0
+                        else
+                            errors+=("${pretty_name}: Download fail")
+                        fi
+                    else
+                        have_pkg=0
+                    fi
+
+                    if [ ${have_pkg} -eq 0 ]
+                    then
+                        ContinueEcho "Adding..."
+                        reprepro -b "${CONFIG_REPOSITORY_PATH}" includedsc "${CONFIG_DISTRIBUTION_NAME}" "${package_name}" || \
+                        errors+=("${pretty_name}: Couldn't add to repo")
+                    fi
+                    popd
+                else
+                    errors+=("${pretty_name}: Couldn't determine filename")
+                    ContinueEcho "Couldn't determine filename, skipping..."
+                fi
+            else
+                ContinueEcho "Got error, skipping..."
+            fi
+        fi
+    done
+fi
+
+if [[ "x${CONFIG_CUSTOM_PACKAGES_PATH}" != "x" ]] && [ -d "${CONFIG_CUSTOM_PACKAGES_PATH}" ]
+then
+    pushd "${download_dir}"
+    for package_name in "${CONFIG_CUSTOM_PACKAGES_PATH}"/*.deb
+    do
+        pkg=$(dpkg-deb -f "${package_name}" Package)
+        ver=$(dpkg-deb -f "${package_name}" Version)
+        pretty_name="[DEB] ${pkg}=${ver}"
+
+        DoEcho "${pretty_name}"
+        ContinueEcho "Filename: ${package_name}"
+        ContinueEcho "Adding..."
+        reprepro -b "${CONFIG_REPOSITORY_PATH}" includedeb "${CONFIG_DISTRIBUTION_NAME}" "${package_name}" || \
+        errors+=("${pretty_name}: Couldn't add to repo")
+    done
+    popd
+fi
 
 DoEcho "Finished, checking repository integrity"
 generation_errors="good"

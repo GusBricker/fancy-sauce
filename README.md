@@ -32,6 +32,8 @@ It will setup the GPG key based on the `${CONFIG_GPG_KEY}` setting. These option
 This script expects a manifest file to exist at `${CONFIG_MANIFEST_PATH}`. The script will then proceed to download all the packages specified into
 the `${CONFIG_DOWNLOAD_PACKAGES_PATH}` directory and then add it to the repository using reprepro.
 
+Custom packages can also be added to the repoistory using the `${CONFIG_CUSTOM_PACKAGES_PATH}` variable.
+
 It will setup the apt repository based `${CONFIG_DISTRIBUTIONS}` setting. These options are documented at: https://mirrorer.alioth.debian.org/reprepro.1.html
 
 

@@ -8,8 +8,7 @@
 ## Useful functions:
 ##  RelToAbs()  - converts relative to absolute path
 
-# See CONFIG FILES options at: https://mirrorer.alioth.debian.org/reprepro.1.html
-CONFIG_DISTRIBUTIONS=$(cat <<- EOF
+CONFIG_DISTRIBUTIONS=$(cat <<- EOF                          # Required: See CONFIG FILES options at: https://mirrorer.alioth.debian.org/reprepro.1.html
 Origin: apt.example.com
 Label: Awesome Apt repository
 Codename: awesome01
@@ -20,15 +19,19 @@ SignWith: Dr Key Less
 Pull: jessie
 EOF
 )
-CONFIG_MANIFEST_PATH="${HOME}/manifest.txt"
-CONFIG_DOWNLOAD_PACKAGES_PATH="${HOME}/my_repo_download"
-CONFIG_DOWNLOAD_PACKAGE_SOURCE="yes" # yes or no
-CONFIG_REPOSITORY_PATH="${HOME}/my_repo"
-CONFIG_DISTRIBUTION_NAME="awesome01"
 
-CONFIG_GPG_KEY_PATH="${CONFIG_REPOSITORY_PATH}/keys"
-# See batch options at: https://www.gnupg.org/documentation/manpage.html
-CONFIG_GPG_KEY=$(cat <<- EOF
+CONFIG_MANIFEST_PATH="${HOME}/manifest.txt"                 # Optional: Path to manifest file geneated by build_installed_manifest
+CONFIG_DOWNLOAD_PACKAGES_PATH="${HOME}/my_repo_download"    # Required: if CONFIG_MANIFEST_PATH: Generate_repository stores downloads here
+CONFIG_DOWNLOAD_PACKAGE_SOURCE="yes"                        # Optional: Will download source and add to repository
+
+CONFIG_CUSTOM_PACKAGES_PATH="${HOME}/my_custom_packages"    # Optional: Path to some custom debs which should be included in the repo
+
+CONFIG_REPOSITORY_PATH="${HOME}/my_repo"                    # Required: Path to root of repository to be created
+CONFIG_DISTRIBUTION_NAME="awesome01"                        # Required: Name of distribution to create, should match a codename in CONFIG_DISTRIBUTIONS
+
+CONFIG_GPG_KEY_PATH="${CONFIG_REPOSITORY_PATH}/keys"        # Optional: Only needed for setup_gpg_key tool
+
+CONFIG_GPG_KEY=$(cat <<- EOF                                # Optional: See batch options at: https://www.gnupg.org/documentation/manpage.html
 Key-Type: 1
 Key-Length: 2048
 Subkey-Type: 1
